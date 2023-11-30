@@ -4,29 +4,35 @@
 <section class="section">
 	<div class="row">
 		<div class="col-md-12">
+			<?php
+			$msgs = $this->session->flashdata('msgs');
+			$success_msgs = $msgs["success_msgs"];
+			$error_msgs = $msgs["error_msgs"];
+			if ($success_msgs) foreach($success_msgs as $msg){ ?>
+			<div class="alert alert-success alert-dismissible fade show" role="alert">
+				<i class="bi bi-check-circle me-1"></i>
+				<?= $msg ?>
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			</div>
+			<?php } 
+			if ($error_msgs) foreach($error_msgs as $msg){ ?>
+			<div class="alert alert-danger alert-dismissible fade show" role="alert">
+				<i class="bi bi-exclamation-octagon me-1"></i>
+				<?= $msg ?>
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			</div>
+			<?php } ?>
 			<div class="card">
 				<div class="card-body">
 					<h5 class="card-title">Add Sender Email</h5>
 					<?php
-					$error_msgs = $this->session->flashdata('error_msgs');
-					if ($error_msgs) foreach($error_msgs as $msg){ ?>
-					<div class="alert alert-danger alert-dismissible fade show" role="alert">
-						<i class="bi bi-exclamation-octagon me-1"></i>
-						<?= $msg ?>
-						<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-					</div>
-					<?php } ?>
+					 ?>
 					<form class="row g-3" method="post" action="<?= base_url() ?>home/add_sender">
-						<input type="hidden" name="mailtype" value="html" readonly>
-						<input type="hidden" name="charset" value="utf-8" readonly>
-						<input type="hidden" name="wordwrap" value="1" readonly>
-						<input type="hidden" name="crlf" value="\r\n" readonly>
-						<input type="hidden" name="newline" value="\r\n" readonly>
 						<input type="hidden" name="smtp_crypto" value="ssl" readonly>
 						<div class="col-md-4">
 							<label class="form-label">Protocol</label>
 							<select class="form-select" name="protocol">
-								<option value="">smtp</option>
+								<option value="smtp">smtp</option>
 								<option value="mail">mail</option>
 								<option value="sendmail">sendmail</option>
 							</select>
