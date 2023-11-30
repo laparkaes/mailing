@@ -14,8 +14,7 @@ class General_model extends CI_Model{
 		return $this->db->insert_id();
 	}
 	
-	function filter($tablename, $w, $l = null, $w_in = null, $orders = [], $limit = "", $offset = "", $check_valid = true){
-		if ($check_valid) $this->db->where("valid", true);
+	function filter($tablename, $w, $l = null, $w_in = null, $orders = [], $limit = "", $offset = ""){
 		if ($w){ $this->db->group_start(); $this->db->where($w); $this->db->group_end(); }
 		if ($l){
 			$this->db->group_start();
@@ -51,7 +50,6 @@ class General_model extends CI_Model{
 	}
 
 	function qty($tablename, $w = null, $l = null, $w_in = null, $group_by = null, $check_valid = true){
-		if ($check_valid) $this->db->where("valid", true);
 		if ($w){ $this->db->group_start(); $this->db->where($w); $this->db->group_end(); }
 		if ($l){
 			$this->db->group_start();
@@ -73,8 +71,7 @@ class General_model extends CI_Model{
 		return $query->num_rows();
 	}
 	
-	function all($tablename, $orders = [], $limit = "", $offset = "", $check_valid = true){
-		if ($check_valid) $this->db->where("valid", true);
+	function all($tablename, $orders = [], $limit = "", $offset = ""){
 		if ($orders) foreach($orders as $o) $this->db->order_by($o[0], $o[1]);
 		$query = $this->db->get($tablename, $limit, $offset);
 		$result = $query->result();

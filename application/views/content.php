@@ -26,36 +26,19 @@
 			} ?>
 			<div class="card">
 				<div class="card-body">
-					<h5 class="card-title">Add Sender Email</h5>
-					<form class="row g-3" method="post" action="<?= base_url() ?>home/add_sender">
-						<input type="hidden" name="smtp_crypto" value="ssl" readonly>
+					<h5 class="card-title">Asign Content File</h5>
+					<form class="row g-3" method="post" action="<?= base_url() ?>home/add_content">
 						<div class="col-md-4">
-							<label class="form-label">Protocol</label>
-							<select class="form-select" name="protocol">
-								<option value="smtp">smtp</option>
-								<option value="mail">mail</option>
-								<option value="sendmail">sendmail</option>
-							</select>
-						</div>
-						<div class="col-md-4">
-							<label class="form-label">Host</label>
-							<input type="text" name="smtp_host" class="form-control">
-						</div>
-						<div class="col-md-4">
-							<label class="form-label">Port</label>
-							<input type="text" name="smtp_port" class="form-control">
-						</div>
-						<div class="col-md-12">
 							<label class="form-label">Title</label>
 							<input type="text" name="title" class="form-control">
 						</div>
-						<div class="col-md-6">
-							<label class="form-label">Sender Email</label>
-							<input type="text" name="smtp_user" class="form-control">
+						<div class="col-md-8">
+							<label class="form-label">File name</label>
+							<input type="text" name="filename" class="form-control">
 						</div>
-						<div class="col-md-6">
-							<label class="form-label">Sender Password</label>
-							<input type="text" name="smtp_pass" class="form-control">
+						<div class="col-md-12 text-danger">
+							<div><small>* File name has to be without .php</small></div>
+							<div><small>* The file should already be uploaded at the path view/contents/</small></div>
 						</div>
 						<div class="text-center pt-3">
 							<button type="submit" class="btn btn-primary">Save</button>
@@ -68,31 +51,26 @@
 		<div class="col-md-12">
 			<div class="card">
 				<div class="card-body">
-					<h5 class="card-title">Sender list</h5>
+					<h5 class="card-title">Content list</h5>
 					<table class="table table-striped align-middle">
 						<thead>
 							<tr>
 								<th scope="col">#</th>
 								<th scope="col">Title</th>
-								<th scope="col">Email</th>
-								<th scope="col">Host</th>
-								<th scope="col">Port</th>
-								<th scope="col">Other</th>
+								<th scope="col">File name</th>
 								<th scope="col"></th>
 							</tr>
 						</thead>
 						<tbody>
-							<?php foreach($senders as $i => $s){ ?>
+							<?php foreach($contents as $i => $c){ ?>
 							<tr>
 								<th scope="row"><?= number_format($i + 1) ?></th>
-								<td><?= $s->title ?></td>
-								<td><?= $s->smtp_user ?></td>
-								<td><?= $s->smtp_host ?></td>
-								<td><?= $s->smtp_port ?></td>
-								<td><?= $s->protocol ?>, <?= $s->smtp_crypto ?></td>
+								<td><?= $c->title ?></td>
+								<td><?= $c->filename ?></td>
 								<td class="text-end">
-									<a class="btn btn-primary" href="<?= base_url() ?>home/exec_send_test_email/<?= $s->sender_id ?>" target="_blank"><i class="bi bi-send"></i></a>
-									<a class="btn btn-danger btn_delete_sender" href="<?= base_url() ?>home/delete_sender/<?= $s->sender_id ?>"><i class="bi bi-trash"></i></a>
+									<a class="btn btn-primary" href="<?= base_url() ?>home/view_content/<?= $c->content_id ?>" target="_blank"><i class="bi bi-search"></i></a>
+									<a class="btn btn-primary" href="<?= base_url() ?>home/send_content_sample/<?= $c->content_id ?>" target="_blank"><i class="bi bi-send"></i></a>
+									<a class="btn btn-danger btn_delete_content" href="<?= base_url() ?>home/delete_content/<?= $c->content_id ?>"><i class="bi bi-trash"></i></a>
 								</td>
 							</tr>
 							<?php } ?>

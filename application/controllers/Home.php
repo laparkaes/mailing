@@ -16,9 +16,10 @@ class Home extends CI_Controller {
 		$this->load->view('layout', $data);
 	}
 	
+	/* sender start */
 	public function sender(){
-		
 		$data = [
+			"senders" => $this->gm->all("sender", [["title", "asc"]]),
 			"main" => "sender",
 		];
 		$this->load->view('layout', $data);
@@ -28,10 +29,10 @@ class Home extends CI_Controller {
 		$data = $this->input->post();
 		
 		$success_msgs = $error_msgs = [];
-		if (!$data["smtp_host"]) $error_msgs[] = "Insert smtp host.";
-		if (!$data["smtp_port"]) $error_msgs[] = "Insert smtp port.";
-		if (!$data["smtp_user"]) $error_msgs[] = "Insert sender email.";
-		if (!$data["smtp_pass"]) $error_msgs[] = "Insert sender password.";
+		if (!$data["smtp_host"]) $error_msgs[] = "Smtp host is required.";
+		if (!$data["smtp_port"]) $error_msgs[] = "Smtp port is required.";
+		if (!$data["smtp_user"]) $error_msgs[] = "Sender email is required.";
+		if (!$data["smtp_pass"]) $error_msgs[] = "Sender password is required.";
 		
 		if ($error_msgs) $this->session->set_flashdata('error_msgs', $error_msgs);
 		else{
@@ -39,16 +40,16 @@ class Home extends CI_Controller {
 			if ($sender){
 				$sender_id = $sender->sender_id;
 				$this->gm->update("sender", ["sender_id" => $sender_id], $data);
-			}else $sender_id = $this->gm->insert("sender", $data);
+				$success_msgs[] = "Sender has been updated.";
+			}else{
+				$sender_id = $this->gm->insert("sender", $data);
+				$success_msgs[] = "Sender has been inserted.";
+			}
 			
 			//sending test mail
 			$result = $this->send_test_email($sender_id); print_r($result);
-			if ($result["type"]){
-				$success_msgs[] = $result["msg"];
-				
-			}else{
-				$error_msgs[] = $result["msg"];
-			}
+			if ($result["type"]) $success_msgs[] = $result["msg"];
+			else $error_msgs[] = $result["msg"];
 		}
 		
 		$msgs = ["success_msgs" => $success_msgs, "error_msgs" => $error_msgs];
@@ -57,7 +58,12 @@ class Home extends CI_Controller {
 		redirect("/home/sender");
 	}
 	
-	public function send_test_email($sender_id){
+	public function exec_send_test_email($sender_id){
+		$result = $this->send_test_email($sender_id);
+		echo $result["msg"];
+	}
+	
+	public function send_test_email($sender_id, $content = ""){
 		$result = ["type" => false, "msg" => null];
 		
 		if (!$sender_id) $sender_id = $this->input->post("sender_id");
@@ -79,19 +85,157 @@ class Home extends CI_Controller {
 				'newline' => "\r\n", // 줄바꿈 문자
 			];
 			
+			if (!$content) $content = '<div style="color:red;">Testing mail from Mailing Sys</div>';
+			
 			$this->email->initialize($config); // 이메일 설정을 초기화합니다.
 			$this->email->from($sender->smtp_user, $sender->smtp_user); // 발송자 이름
 			$this->email->to('laparkaes@gmail.com'); // 수신자 이메일 주소
 			$this->email->subject('Testing mail from Mailing Sys'); // 이메일 제목
-			$this->email->message('<div style="color:red;">Testing mail from Mailing Sys</div>'); // 이메일 내용
+			$this->email->message($content); // 이메일 내용
 			
 			// 이메일을 발송합니다.
+			/*
 			if ($this->email->send()){
 				$result["type"] = true;
 				$result["msg"] = "Email sent to laparkaes@gmail.com";
 			}else $result["msg"] = "Error ocurred sending email.";
+			*/
+			$this->email->send();
+			$result["type"] = true;
+			$result["msg"] = "Email sent to laparkaes@gmail.com";
 		}else $result["type"] = "No sender record.";
 		
 		return $result;
 	}
+
+	public function delete_sender($sender_id){
+		$success_msgs = $error_msgs = [];
+		
+		if ($this->gm->delete("sender", ["sender_id" => $sender_id])) $success_msgs[] = "Sender deleted!!";
+		else $error_msgs[] = "Error!! Try again.";
+		
+		$msgs = ["success_msgs" => $success_msgs, "error_msgs" => $error_msgs];
+		$this->session->set_flashdata('msgs', $msgs);
+		
+		redirect("/home/sender");
+	}
+	/* sender end */
+	
+	/* content start */
+	public function content(){
+		$data = [
+			"contents" => $this->gm->all("content", [["filename", "asc"]]),
+			"main" => "content",
+		];
+		$this->load->view('layout', $data);
+	}
+	
+	public function add_content(){
+		$data = $this->input->post();
+		
+		$success_msgs = $error_msgs = [];
+		if (!$data["title"]) $error_msgs[] = "Title is required.";
+		if (!$data["filename"]) $error_msgs[] = "File name is required.";
+		
+		if ($error_msgs) $this->session->set_flashdata('error_msgs', $error_msgs);
+		else{
+			$content = $this->gm->unique("content", "title", $data["title"]);
+			if ($content){
+				$content_id = $content->content_id;
+				$this->gm->update("content", ["content_id" => $content_id], $data);
+				$success_msgs[] = "Content has been updated.";
+			}else{
+				$content_id = $this->gm->insert("content", $data);
+				$success_msgs[] = "Content has been inserted.";
+			}
+		}
+		
+		$msgs = ["success_msgs" => $success_msgs, "error_msgs" => $error_msgs];
+		$this->session->set_flashdata('msgs', $msgs);
+		
+		redirect("/home/content");
+	}
+	
+	public function view_content($content_id){
+		$content = $this->gm->unique("content", "content_id", $content_id);
+		if ($content) $this->load->view('contents/'.$content->filename);
+		else echo "Content record error!!";
+	}
+	
+	public function send_content_sample($content_id){
+		$content = $this->gm->unique("content", "content_id", $content_id);
+		if ($content){
+			$sender = $this->gm->filter("sender", [], null, null, [], 1, 0);
+			if ($sender){
+				$result = $this->send_test_email($sender[0]->sender_id, $this->load->view('contents/'.$content->filename, "", true));
+				echo $result["msg"];
+			}else echo "No sender record exists!!";
+		}else echo "Content record error!!";
+	}
+	
+	public function delete_content($content_id){
+		$success_msgs = $error_msgs = [];
+		
+		if ($this->gm->delete("content", ["content_id" => $content_id])) $success_msgs[] = "Content record deleted!!";
+		else $error_msgs[] = "Error!! Try again.";
+		
+		$msgs = ["success_msgs" => $success_msgs, "error_msgs" => $error_msgs];
+		$this->session->set_flashdata('msgs', $msgs);
+		
+		redirect("/home/content");
+	}
+	/* content end */
+	
+	/* email db start */
+	public function email_db(){
+		$email_lists = $this->gm->all("email_list", [["list", "asc"]]);
+		foreach($email_lists as $l) $l->qty = $this->gm->qty("email", ["list_id" => $l->list_id]);
+		
+		$data = [
+			"email_lists" => $email_lists,
+			"main" => "email_db",
+		];
+		$this->load->view('layout', $data);
+	}
+	
+	public function add_emails(){
+		$list_id = $this->input->post("list_id");
+		$list = $this->input->post("list");
+		$emails = $this->input->post("emails");
+		
+		//
+		
+		$success_msgs = $error_msgs = [];
+		if (!$list_id) if (!$list) $error_msgs[] = "List selection or name is required.";
+		if (!$emails) $error_msgs[] = "Emails is required.";
+		
+		if (!$error_msgs){
+			if (!$list_id){
+				$list_rec = $this->gm->unique("email_list", "list", $list);
+				if ($list_rec) $list_id = $list_rec->list_id;
+				else $list_id = $this->gm->insert("email_list", ["list" => $list]);
+			}
+			
+			$insert_qty = 0;
+			$emails = explode(",", $emails);
+			foreach($emails as $e){
+				$email = trim($e);
+				if ($email) if (filter_var($email, FILTER_VALIDATE_EMAIL)){
+					$data = ["list_id" => $list_id, "email" => $email];
+					if (!$this->gm->filter("email", ["list_id" => $list_id, "email" => $email])){
+						$this->gm->insert("email", $data);
+						$insert_qty++;
+					}
+				}	
+			}
+			
+			$success_msgs[] = number_format($insert_qty)." emails has been inserted to database.";
+		}
+		
+		$msgs = ["success_msgs" => $success_msgs, "error_msgs" => $error_msgs];
+		$this->session->set_flashdata('msgs', $msgs);
+		
+		redirect("/home/email_db");
+	}
+	/* email db end */
 }

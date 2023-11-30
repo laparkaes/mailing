@@ -41,7 +41,7 @@
 			<div class="card">
 				<div class="card-body">
 					<h5 class="card-title">Time</h5>
-					<h3 class="text-center mb-0">00:00:00<h3>
+					<h3 class="text-center mb-0">00:00:00</h3>
 				</div>
 			</div>
 		</div>
@@ -49,7 +49,7 @@
 			<div class="card">
 				<div class="card-body">
 					<h5 class="card-title">Sent</h5>
-					<h3 class="text-center mb-0">12,348<h3>
+					<h3 class="text-center mb-0">12,348</h3>
 					<input type="hidden" id="sent" value="0">
 				</div>
 			</div>
@@ -58,7 +58,7 @@
 			<div class="card">
 				<div class="card-body">
 					<h5 class="card-title">Error</h5>
-					<h3 class="text-center mb-0">12,348<h3>
+					<h3 class="text-center mb-0">12,348</h3>
 					<input type="hidden" id="error" value="0">
 				</div>
 			</div>
