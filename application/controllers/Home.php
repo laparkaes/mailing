@@ -16,6 +16,24 @@ class Home extends CI_Controller {
 		$this->load->view('layout', $data);
 	}
 	
+	private function paging($page, $qty){
+		$pages = [];
+		if ($qty){
+			$last = floor($qty / 500); if ($qty % 500) $last++;
+			if (3 < $page) $pages[] = [1, "<<", ""];
+			if (3 < $page) $pages[] = [$page-3, "...", ""];
+			if (2 < $page) $pages[] = [$page-2, $page-2, ""];
+			if (1 < $page) $pages[] = [$page-1, $page-1, ""];
+			$pages[] = [$page, $page, "active"];
+			if ($page+1 <= $last) $pages[] = [$page+1, $page+1, ""];
+			if ($page+2 <= $last) $pages[] = [$page+2, $page+2, ""];
+			if ($page+3 <= $last) $pages[] = [$page+3, "...", ""];
+			if ($page+3 <= $last) $pages[] = [$last, ">>", ""];
+		}
+		
+		return $pages;
+	}
+	
 	/* sender start */
 	public function sender(){
 		$data = [
@@ -236,6 +254,50 @@ class Home extends CI_Controller {
 		$this->session->set_flashdata('msgs', $msgs);
 		
 		redirect("/home/email_db");
+	}
+	
+	public function view_emails($list_id){
+		$page = $this->input->get("p");
+		if (!$page) $page = 1;
+		
+		$f = ["list_id" => $list_id];
+		$qty = $this->gm->qty("email", $f);
+		
+		$data = [
+			"page" => $page,
+			"email_list" => $this->gm->unique("email_list", "list_id", $list_id),
+			"emails" => $this->gm->filter("email", $f, null, null, [["email", "asc"]], 500, 500*($page-1)),
+			"total" => $qty,
+			"paging" => $this->paging($page, $qty),
+			"main" => "view_emails",
+		];
+		$this->load->view('layout', $data);
+	}
+	
+	public function delete_email_list($list_id){
+		$success_msgs = $error_msgs = [];
+		
+		if (!$this->gm->filter("email", ["list_id" => $list_id])){
+			if ($this->gm->delete("email_list", ["list_id" => $list_id])) $success_msgs[] = "List deleted!!";
+			else $error_msgs[] = "Error!! Try again.";
+		}else $error_msgs[] = "List with email cannot delete.";
+		
+		$msgs = ["success_msgs" => $success_msgs, "error_msgs" => $error_msgs];
+		$this->session->set_flashdata('msgs', $msgs);
+		
+		redirect("/home/email_db");
+	}
+	
+	public function delete_email($list_id, $email_id){
+		$success_msgs = $error_msgs = [];
+		
+		if ($this->gm->delete("email", ["email_id" => $email_id])) $success_msgs[] = "Email deleted!!";
+		else $error_msgs[] = "Error!! Try again.";
+		
+		$msgs = ["success_msgs" => $success_msgs, "error_msgs" => $error_msgs];
+		$this->session->set_flashdata('msgs', $msgs);
+		
+		redirect("/home/view_emails/".$list_id);
 	}
 	/* email db end */
 }

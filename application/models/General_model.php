@@ -49,7 +49,7 @@ class General_model extends CI_Model{
 		return $result;
 	}
 
-	function qty($tablename, $w = null, $l = null, $w_in = null, $group_by = null, $check_valid = true){
+	function qty($tablename, $w = null, $l = null, $w_in = null, $group_by = null){
 		if ($w){ $this->db->group_start(); $this->db->where($w); $this->db->group_end(); }
 		if ($l){
 			$this->db->group_start();

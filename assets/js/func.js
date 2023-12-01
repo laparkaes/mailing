@@ -38,3 +38,12 @@ $(".btn_delete_content").on('click',(function(e) {
 	if (!confirm("Are you sure you want to delete content record?")) event.preventDefault();
 }));
 
+$(".btn_delete_email_list").on('click',(function(e) {
+	if (!confirm("Are you sure you want to delete email list?")) event.preventDefault();
+}));
+
+$(".btn_delete_email").on('click',(function(e) {
+	if (!confirm("Are you sure you want to delete email record?")) event.preventDefault();
+}));
+
+

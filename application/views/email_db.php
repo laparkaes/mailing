@@ -32,6 +32,9 @@
 							<label class="form-label">List name</label>
 							<select class="form-select mb-3" name="list_id">
 								<option value="">Create new list</option>
+								<?php foreach($email_lists as $l){ ?>
+								<option value="<?= $l->list_id ?>"><?= $l->list ?></option>
+								<?php } ?>
 							</select>
 							<input type="text" name="list" class="form-control">
 						</div>
@@ -67,10 +70,11 @@
 								<td><?= $l->list ?></td>
 								<td><?= number_format($l->qty) ?></td>
 								<td class="text-end">
+									<a class="btn btn-primary" href="<?= base_url() ?>home/view_emails/<?= $l->list_id ?>"><i class="bi bi-search"></i></a>
+									<a class="btn btn-danger btn_delete_email_list" href="<?= base_url() ?>home/delete_email_list/<?= $l->list_id ?>"><i class="bi bi-trash"></i></a>
 									<!--
 									<a class="btn btn-primary" href="<?= base_url() ?>home/view_content/<?= $l->list_id ?>" target="_blank"><i class="bi bi-search"></i></a>
 									<a class="btn btn-primary" href="<?= base_url() ?>home/send_content_sample/<?= $l->list_id ?>" target="_blank"><i class="bi bi-send"></i></a>
-									<a class="btn btn-danger btn_delete_content" href="<?= base_url() ?>home/delete_content/<?= $l->list_id ?>"><i class="bi bi-trash"></i></a>
 									-->
 								</td>
 							</tr>
