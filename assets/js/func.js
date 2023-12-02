@@ -47,14 +47,18 @@ $(".btn_delete_email").on('click',(function(e) {
 }));
 
 var interval_id;
+var total;
 
 $("#btn_start").on('click',(function(e) {
+	total = 0;
+	$("#bl_mailing_result").html("");
 	$("#bl_mailing_result").prepend("Starting...<br/>");
 	$("#btn_start").addClass("d-none");
 	$("#btn_stop").removeClass("d-none");
 	
 	interval_id = setInterval(function() {
 		$("#form_send_email").submit();
+		total++;
     }, 10000); // 10초를 밀리초로 표현한 값
 }));
 
@@ -64,18 +68,22 @@ $("#btn_stop").on('click',(function(e) {
 	
 	clearInterval(interval_id);
 	$("#bl_mailing_result").prepend("Finished<br/>");
+	$("#bl_mailing_result").prepend("Total sent: " + (total - 1) + "<br/>");
 }));
 	
 
 $("#form_send_email").submit(function(e) {
 	e.preventDefault();
 	ajax_form(this, "home/send_email").done(function(res) {
-		if (res.type == "error") $("#btn_stop").trigger('click');
-		else if ($("#bl_mailing_result").text().includes(res.email)){
+		if (res.type == "success"){
+			if ($("#bl_mailing_result").text().includes(res.email)){
+				$("#btn_stop").trigger('click');
+				$("#bl_mailing_result").prepend("All emails of selected list has been sent.<br/>");
+			}else $("#bl_mailing_result").prepend(res.email + "<br/>");
+		}else{
+			$("#bl_mailing_result").prepend(res.msg);
 			$("#btn_stop").trigger('click');
-			$("#bl_mailing_result").prepend("All emails of selected list has been sent.<br/>");
 		}
-		$("#bl_mailing_result").prepend(res.msg);
 	});
 });
 

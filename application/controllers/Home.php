@@ -10,11 +10,70 @@ class Home extends CI_Controller {
 	}
 
 	public function index(){
+		$email_lists = $this->gm->all("email_list", [["list", "asc"]]);
+		foreach($email_lists as $l) $l->qty = $this->gm->qty("email", ["list_id" => $l->list_id]);
 		
 		$data = [
+			"senders" => $this->gm->all("sender", [["title", "asc"]]),
+			"contents" => $this->gm->all("content", [["title", "asc"]]),
+			"email_lists" => $email_lists,
 			"main" => "home",
 		];
 		$this->load->view('layout', $data);
+	}
+	
+	public function send_email(){
+		$result = ["type" => "error", "msg" => null, "email" => null];
+		
+		$sender = $this->gm->unique("sender", "sender_id", $this->input->post("sender_id"));
+		$content = $this->gm->unique("content", "content_id", $this->input->post("content_id"));
+		$email_list = $this->gm->unique("email_list", "list_id", $this->input->post("list_id"));
+		
+		$msg = "";
+		if (!$sender) $msg .= "Select sender.";
+		if (!$content) $msg .= "Select content.";
+		if (!$email_list) $msg .= "Select email list.";
+		
+		if ($msg) $result["msg"] = $msg;
+		else{
+			$w = ["list_id" => $email_list->list_id];
+			$orders = [["last_sent_at", "asc"]];
+			$email = $this->gm->filter("email", $w, null, null, $orders, 1, 0);
+			if ($email){
+				$email = $email[0];
+				$content_email = $this->load->view('contents/'.$content->filename, "", true);
+				
+				$this->load->library('email');
+				$config = [
+					'protocol' => $sender->protocol, // 이메일 전송 방법 (smtp, mail, sendmail)
+					'smtp_host' => $sender->smtp_host, // SMTP 호스트 주소
+					'smtp_port' => $sender->smtp_port, // SMTP 포트 번호
+					'smtp_user' => $sender->smtp_user, // 발송자 이메일 계정
+					'smtp_pass' => $sender->smtp_pass, // 발송자 이메일 계정 비밀번호
+					'smtp_crypto' => $sender->smtp_crypto, // 암호화
+					'mailtype' => "html", // 이메일 타입 (text 또는 html)
+					'charset' => "utf-8", // 문자셋
+					'wordwrap' => true, // 자동 줄바꿈 사용 여부
+					'crlf' => "\r\n", // 줄바꿈 문자
+					'newline' => "\r\n", // 줄바꿈 문자
+				];
+				
+				$this->email->initialize($config); // 이메일 설정을 초기화합니다.
+				$this->email->from($sender->smtp_user, $sender->title); // 발송자 이름
+				$this->email->to($email->email); // 수신자 이메일 주소
+				$this->email->subject($content->title); // 이메일 제목
+				$this->email->message($content_email); // 이메일 내용
+				$this->email->send(); // 이메일을 발송
+				
+				$this->gm->update("email", ["email_id" => $email->email_id], ["last_sent_at" => date("Y-m-d H:i:s")]);
+				
+				$result["type"] = "success";
+				$result["email"] = $email->email;
+			}else $result["msg"] = "No email record.";
+			
+			header('Content-Type: application/json');
+			echo json_encode($result);
+		}
 	}
 	
 	private function paging($page, $qty){
@@ -143,7 +202,7 @@ class Home extends CI_Controller {
 	/* content start */
 	public function content(){
 		$data = [
-			"contents" => $this->gm->all("content", [["filename", "asc"]]),
+			"contents" => $this->gm->all("content", [["title", "asc"]]),
 			"main" => "content",
 		];
 		$this->load->view('layout', $data);
@@ -235,7 +294,7 @@ class Home extends CI_Controller {
 			
 			$insert_qty = 0;
 			$emails = explode(",", $emails);
-			foreach($emails as $e){
+			foreach($emails as $i => $e){
 				$email = trim($e);
 				if ($email) if (filter_var($email, FILTER_VALIDATE_EMAIL)){
 					$data = ["list_id" => $list_id, "email" => $email];
