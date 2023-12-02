@@ -9,119 +9,11 @@ class Home extends CI_Controller {
 	}
 
 	public function index(){
-		$email_lists = $this->gm->all("email_list", [["list", "asc"]]);
-		foreach($email_lists as $l) $l->qty = $this->gm->qty("email", ["list_id" => $l->list_id]);
 		
 		$data = [
-			"senders" => $this->gm->all("sender", [["title", "asc"]]),
-			"contents" => $this->gm->all("content", [["title", "asc"]]),
-			"email_lists" => $email_lists,
 			"main" => "home",
 		];
 		$this->load->view('layout', $data);
-	}
-	
-	public function send_email(){
-		$result = ["type" => "error", "msg" => ""];
-		
-		$sender = $this->gm->unique("sender", "sender_id", $this->input->post("sender_id"));
-		$content = $this->gm->unique("content", "content_id", $this->input->post("content_id"));
-		$email_list = $this->gm->unique("email_list", "list_id", $this->input->post("list_id"));
-		
-		$msg = "";
-		if (!$sender) $msg .= "Sender is required.<br/>";
-		if (!$content) $msg .= "Content is required.<br/>";
-		if (!$email_list) $msg .= "Email list is required.<br/>";
-		
-		if ($msg) $result["msg"] = $msg;
-		else{
-			$e = $this->gm->filter("email", ["list_id" => $email_list->list_id], null, null, [["last_sent_at", "asc"]], 1, 0);
-			if ($e){
-				$e = $e[0];
-				$content_email = $this->load->view('contents/'.$content->filename, "", true);
-				
-				$this->load->library('email');
-				$config = [
-					'protocol' => $sender->protocol, // 이메일 전송 방법 (smtp, mail, sendmail)
-					'smtp_host' => $sender->smtp_host, // SMTP 호스트 주소
-					'smtp_port' => $sender->smtp_port, // SMTP 포트 번호
-					'smtp_user' => $sender->smtp_user, // 발송자 이메일 계정
-					'smtp_pass' => $sender->smtp_pass, // 발송자 이메일 계정 비밀번호
-					'smtp_crypto' => $sender->smtp_crypto, // 암호화
-					'mailtype' => "html", // 이메일 타입 (text 또는 html)
-					'charset' => "utf-8", // 문자셋
-					'wordwrap' => true, // 자동 줄바꿈 사용 여부
-					'crlf' => "\r\n", // 줄바꿈 문자
-					'newline' => "\r\n", // 줄바꿈 문자
-				];
-				$this->email->initialize($config); // 이메일 설정을 초기화합니다.
-				$this->email->clear(); // 이전 설정 초기화
-				$this->email->from($sender->smtp_user, $sender->title); // 발송자 이름
-				$this->email->to($e->email); // 수신자 이메일 주소
-				$this->email->subject($content->title); // 이메일 제목
-				$this->email->message($content_email); // 이메일 내용
-				$this->email->send(); // 이메일 발송
-				
-				$now = date("Y-m-d H:i:s");
-				$this->gm->update("email", ["email_id" => $e->email_id], ["last_sent_at" => $now]);
-				
-				$result["type"] = "success";
-				$result["msg"] = "<div>".$now." ".$e->email." ok."."</div>";
-				$result["email"] = $e->email;
-			}
-		}
-		
-		header('Content-Type: application/json');
-		echo json_encode($result);
-	}
-	
-	public function send_emails(){
-		$sender = $this->gm->unique("sender", "sender_id", $this->input->post("sender_id"));
-		$content = $this->gm->unique("content", "content_id", $this->input->post("content_id"));
-		$email_list = $this->gm->unique("email_list", "list_id", $this->input->post("list_id"));
-		
-		$msg = "";
-		if (!$sender) $msg .= "Sender is required.<br/>";
-		if (!$content) $msg .= "Content is required.<br/>";
-		if (!$email_list) $msg .= "Email list is required.<br/>";
-		
-		if ($msg) echo $msg;
-		else{
-			$emails = $this->gm->filter("email", ["list_id" => $email_list->list_id], null, null, [["last_sent_at", "asc"]], 10000, 0);
-			
-			$this->load->library('email');
-			$config = [
-				'protocol' => $sender->protocol, // 이메일 전송 방법 (smtp, mail, sendmail)
-				'smtp_host' => $sender->smtp_host, // SMTP 호스트 주소
-				'smtp_port' => $sender->smtp_port, // SMTP 포트 번호
-				'smtp_user' => $sender->smtp_user, // 발송자 이메일 계정
-				'smtp_pass' => $sender->smtp_pass, // 발송자 이메일 계정 비밀번호
-				'smtp_crypto' => $sender->smtp_crypto, // 암호화
-				'mailtype' => "html", // 이메일 타입 (text 또는 html)
-				'charset' => "utf-8", // 문자셋
-				'wordwrap' => true, // 자동 줄바꿈 사용 여부
-				'crlf' => "\r\n", // 줄바꿈 문자
-				'newline' => "\r\n", // 줄바꿈 문자
-			];
-			$this->email->initialize($config); // 이메일 설정을 초기화합니다.
-			
-			$content_email = $this->load->view('contents/'.$content->filename, "", true);
-			
-			foreach($emails as $e){
-				$this->email->clear(); // 이전 설정 초기화
-				$this->email->from($sender->smtp_user, $sender->title); // 발송자 이름
-				$this->email->to($e->email); // 수신자 이메일 주소
-				$this->email->subject($content->title); // 이메일 제목
-				$this->email->message($content_email); // 이메일 내용
-				$this->email->send(); // 이메일 발송
-				
-				$now = date("Y-m-d H:i:s");
-				$this->gm->update("email", ["email_id" => $e->email_id], ["last_sent_at" => $now]);
-				
-				echo $now." ".$e->email." ok."."<br/>";
-				sleep(15);
-			}
-		}
 	}
 	
 	private function paging($page, $qty){
@@ -214,12 +106,18 @@ class Home extends CI_Controller {
 			if (!$content) $content = '<div style="color:red;">Testing mail from Mailing Sys</div>';
 			
 			$this->email->initialize($config); // 이메일 설정을 초기화합니다.
-			$this->email->from($sender->smtp_user, $sender->title); // 발송자 이름
+			$this->email->from($sender->smtp_user, $sender->smtp_user); // 발송자 이름
 			$this->email->to('laparkaes@gmail.com'); // 수신자 이메일 주소
 			$this->email->subject('Testing mail from Mailing Sys'); // 이메일 제목
 			$this->email->message($content); // 이메일 내용
 			
 			// 이메일을 발송합니다.
+			/*
+			if ($this->email->send()){
+				$result["type"] = true;
+				$result["msg"] = "Email sent to laparkaes@gmail.com";
+			}else $result["msg"] = "Error ocurred sending email.";
+			*/
 			$this->email->send();
 			$result["type"] = true;
 			$result["msg"] = "Email sent to laparkaes@gmail.com";
@@ -244,7 +142,7 @@ class Home extends CI_Controller {
 	/* content start */
 	public function content(){
 		$data = [
-			"contents" => $this->gm->all("content", [["title", "asc"]]),
+			"contents" => $this->gm->all("content", [["filename", "asc"]]),
 			"main" => "content",
 		];
 		$this->load->view('layout', $data);
@@ -319,7 +217,6 @@ class Home extends CI_Controller {
 	}
 	
 	public function add_emails(){
-		set_time_limit(0);
 		$list_id = $this->input->post("list_id");
 		$list = $this->input->post("list");
 		$emails = $this->input->post("emails");
