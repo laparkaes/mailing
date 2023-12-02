@@ -72,10 +72,6 @@
 								<td class="text-end">
 									<a class="btn btn-primary" href="<?= base_url() ?>home/view_emails/<?= $l->list_id ?>"><i class="bi bi-search"></i></a>
 									<a class="btn btn-danger btn_delete_email_list" href="<?= base_url() ?>home/delete_email_list/<?= $l->list_id ?>"><i class="bi bi-trash"></i></a>
-									<!--
-									<a class="btn btn-primary" href="<?= base_url() ?>home/view_content/<?= $l->list_id ?>" target="_blank"><i class="bi bi-search"></i></a>
-									<a class="btn btn-primary" href="<?= base_url() ?>home/send_content_sample/<?= $l->list_id ?>" target="_blank"><i class="bi bi-send"></i></a>
-									-->
 								</td>
 							</tr>
 							<?php } ?>
