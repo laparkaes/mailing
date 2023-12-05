@@ -69,6 +69,7 @@ class Home extends CI_Controller {
 				
 				$result["type"] = "success";
 				$result["email"] = $email->email;
+				$result["msg"] = $this->email->print_debugger();
 			}else $result["msg"] = "No email record.";
 			
 			header('Content-Type: application/json');

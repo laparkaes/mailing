@@ -57,7 +57,7 @@ $("#btn_start").on('click',(function(e) {
 	
 	interval_id = setInterval(function() {
 		$("#form_send_email").submit();
-    }, 10000); // 10초를 밀리초로 표현한 값
+    }, 15000); // 10초를 밀리초로 표현한 값
 }));
 
 $("#btn_stop").on('click',(function(e) {
