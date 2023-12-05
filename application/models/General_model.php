@@ -95,6 +95,11 @@ class General_model extends CI_Model{
 		return $this->db->delete($tablename);
 	}
 	
+	function delete_w_in($tablename, $filter){
+		$this->db->where_in($filter["field"], $filter["values"]);
+		return $this->db->delete($tablename);
+	}
+	
 	function sum($tablename, $col, $filter = null){
 		$this->db->select_sum($col);
 		if ($filter) $this->db->where($filter);

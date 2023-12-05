@@ -40,10 +40,26 @@
 						</div>
 						<div class="col-md-9">
 							<label class="form-label">Emails (separate with ,)</label>
-							<textarea name="emails" class="form-control" rows="10"></textarea>
+							<textarea name="emails" class="form-control" rows="3"></textarea>
 						</div>
 						<div class="text-center pt-3">
 							<button type="submit" class="btn btn-primary">Save</button>
+							<button type="reset" class="btn btn-secondary">Reset</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+			<div class="card">
+				<div class="card-body">
+					<h5 class="card-title">Delete Emails</h5>
+					<form class="row g-3" method="post" action="<?= base_url() ?>home/delete_emails">
+						<div class="col-12">
+							<label class="form-label">Emails (separate with ,)</label>
+							<textarea name="emails" class="form-control" rows="3"></textarea>
+						</div>
+						<div class="text-center pt-3">
+							<button type="submit" class="btn btn-danger">Delete</button>
 							<button type="reset" class="btn btn-secondary">Reset</button>
 						</div>
 					</form>

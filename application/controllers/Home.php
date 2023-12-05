@@ -314,6 +314,28 @@ class Home extends CI_Controller {
 		redirect("/home/email_db");
 	}
 	
+	public function delete_emails(){
+		$emails = $this->input->post("emails");
+		
+		$success_msgs = $error_msgs = [];
+		if (!$emails) $error_msgs[] = "Emails is required.";
+		
+		if (!$error_msgs){
+			$emails = explode(",", $emails);
+		
+			$list = [];
+			foreach($emails as $e) if (trim($e)) $list[] = trim($e);
+			
+			if ($list) $this->gm->delete_w_in("email", ["field" => "email", "values" => $list]);
+			$success_msgs[] = "Emails has been deletes from database.";
+		}
+		
+		$msgs = ["success_msgs" => $success_msgs, "error_msgs" => $error_msgs];
+		$this->session->set_flashdata('msgs', $msgs);
+		
+		redirect("/home/email_db");
+	}
+	
 	public function view_emails($list_id){
 		$page = $this->input->get("p");
 		if (!$page) $page = 1;
