@@ -180,10 +180,10 @@ table, td { color: #000000; } #u_body a { color: #0000ee; text-decoration: under
   <tbody> 
   <tr>
       <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:10px 10px 60px;font-family:'Raleway',sans-serif;text-align: center;" align="left">
-		<img src="https://jweverlyn.com/my_images/sungsan/ic_whatsapp.png" style="vertical-align: middle;"><span style="line-height: 16.8px; color:#fff;">&nbsp;&nbsp;+51 992 533 099</span><span style="color:#fff;">&nbsp;&nbsp;/&nbsp;&nbsp;</span><img src="https://jweverlyn.com/my_images/sungsan/ic_email.png" style="vertical-align: middle;"><span style="line-height: 16.8px; color:#fff;">&nbsp;&nbsp;ofertas.coreanas@gmail.com</span>
+		<img src="https://jweverlyn.com/my_images/sungsan/ic_whatsapp.png" style="vertical-align: middle;"><span style="line-height: 16.8px; color:#fff;">&nbsp;&nbsp;+51 992 533 099</span><span style="color:#fff;">&nbsp;&nbsp;<br/>&nbsp;&nbsp;</span><img src="https://jweverlyn.com/my_images/sungsan/ic_email.png" style="vertical-align: middle;"><span style="line-height: 16.8px; color:#fff;">&nbsp;&nbsp;ofertas.coreanas@gmail.com</span><br/>&nbsp;&nbsp;</span><img src="https://jweverlyn.com/my_images/sungsan/ic_email.png" style="vertical-align: middle;"><span style="line-height: 16.8px; color:#fff;">&nbsp;&nbsp;ofertas@jweverlyn.com</span>
 	  </td>
 	 </tr> 
-  <!--[if mso]><style>.v-button {background: transparent !important;}</style><![endif]-->
+	 <!--[if mso]><style>.v-button {background: transparent !important;}</style><![endif]-->
 
   </tbody>
 </table>
