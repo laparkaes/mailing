@@ -380,5 +380,27 @@ class Home extends CI_Controller {
 		
 		redirect("/home/view_emails/".$list_id);
 	}
+	
+	public function filter_emails(){
+		$text = $this->input->post("text");
+		
+		$to_space = ["\r", "\n", '"'];
+		foreach($to_space as $ch) $text = str_replace($ch, " ", $text);
+		
+		$to_blank = [";", ":", "(", ")", "<", ">"];
+		foreach($to_blank as $ch) $text = str_replace($ch, " ", $text);
+		
+		$list = [];
+		$text = explode(" ", $text);
+		foreach($text as $t){
+			if (strpos($t, '@') !== false) $list[] = trim($t);
+		}
+		
+		$list = array_unique($list);
+		sort($list);
+		
+		foreach($list as $e) echo $e.", ";
+		
+	}
 	/* email db end */
 }

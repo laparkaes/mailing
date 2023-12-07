@@ -49,7 +49,6 @@
 					</form>
 				</div>
 			</div>
-		</div>
 			<div class="card">
 				<div class="card-body">
 					<h5 class="card-title">Delete Emails</h5>
@@ -65,8 +64,21 @@
 					</form>
 				</div>
 			</div>
-		</div>
-		<div class="col-md-12">
+			<div class="card">
+				<div class="card-body">
+					<h5 class="card-title">Filter Emails</h5>
+					<form class="row g-3" method="post" action="<?= base_url() ?>home/filter_emails" target="_blank">
+						<div class="col-12">
+							<label class="form-label">Text</label>
+							<textarea name="text" class="form-control" rows="3"></textarea>
+						</div>
+						<div class="text-center pt-3">
+							<button type="submit" class="btn btn-primary">Show</button>
+							<button type="reset" class="btn btn-secondary">Reset</button>
+						</div>
+					</form>
+				</div>
+			</div>
 			<div class="card">
 				<div class="card-body">
 					<h5 class="card-title">Content list</h5>
